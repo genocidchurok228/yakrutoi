@@ -1,0 +1,69 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ConsoleApp5
+{
+    using System;
+
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            
+            int rows = 5; 
+            int cols = 2; 
+
+           
+            int[,] array = new int[rows, cols];
+            Random random = new Random();
+
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    array[i, j] = random.Next(0, 101); 
+                }
+            }
+
+            
+            Console.WriteLine("первый массив:");
+            PrintArray(array);
+            SwapColumnsIfGreater(array);
+            Console.WriteLine("второй массив:");
+            PrintArray(array);
+        }
+
+        static void SwapColumnsIfGreater(int[,] array)
+        {
+            int rows = array.GetLength(0);
+
+            for (int i = 0; i < rows; i++)
+            {
+                if (array[i, 0] > array[i, 1])
+                {
+                    int temp = array[i, 0];
+                    array[i, 0] = array[i, 1];
+                    array[i, 1] = temp;
+                }
+            }
+        }  
+
+        static void PrintArray(int[,] array)
+        {
+            int rows = array.GetLength(0);
+            int cols = array.GetLength(1);
+
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    Console.Write(array[i, j] + "\t");
+                }
+                Console.WriteLine();
+            }
+        }
+    }
+}
