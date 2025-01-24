@@ -1,0 +1,50 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+
+namespace ConsoleApp6
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            string filePath = "111.txt";
+            char[,] array = ReadFileTo2DArray(filePath);
+            PrintArray(array);
+        }
+
+        static char[,] ReadFileTo2DArray(string filePath)
+        {
+            string[] lines = File.ReadAllLines(filePath);
+            int rows = lines.Length;
+            int cols = lines[0].Length; 
+            char[,] array = new char[rows, cols];
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    array[i, j] = lines[i][j];
+                }
+            }
+
+            return array;
+        }
+
+        static void PrintArray(char[,] array)
+        {
+            int rows = array.GetLength(0);
+            int cols = array.GetLength(1);
+
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    Console.Write(array[i, j] + " ");
+                }
+                Console.WriteLine();
+            }
+        }
+    }
