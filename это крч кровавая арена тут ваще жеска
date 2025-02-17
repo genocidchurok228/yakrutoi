@@ -1,0 +1,229 @@
+using System;
+using System.Collections.Generic;
+
+ internal class Program
+{
+    static void Main(string[] args)
+    {
+        Arena arena = new Arena();
+        arena.StartBattle();
+    }
+
+    public abstract class Fighter
+    {
+        public string Name { get; protected set; }
+        public int MaxHP { get; protected set; }
+        public int HP { get; protected set; }
+        public int Damage { get; protected set; }
+        public bool IsAlive => HP > 0;
+
+        public Fighter(string name, int maxHP, int damage)
+        {
+            Name = name;
+            MaxHP = maxHP;
+            HP = maxHP;
+            Damage = damage;
+        }
+
+        public virtual void TakeDamage(int damage)
+        {
+            HP -= damage;
+            if (HP < 0) HP = 0;
+        }
+
+        public abstract void Attack(Fighter target);
+
+        public virtual void Reset()
+        {
+            HP = MaxHP;
+        }
+    }
+
+    public class SimpleFighter : Fighter
+    {
+        public SimpleFighter() : base("Warrior", 100, 10) { }
+
+        public override void Attack(Fighter target)
+        {
+            target.TakeDamage(Damage);
+            Console.WriteLine($"{Name} attacks {target.Name} for {Damage} damage!");
+        }
+    }
+
+    public class DoubleStrikeFighter : Fighter
+    {
+        private Random random = new Random();
+        public DoubleStrikeFighter() : base("Rogue", 75, 25) { }
+
+        public override void Attack(Fighter target)
+        {
+            int attacks = random.Next(4) == 0 ? 2 : 1;
+            for (int i = 0; i < attacks; i++)
+            {
+                target.TakeDamage(Damage);
+                Console.WriteLine($"{Name} attacks {target.Name} for {Damage} damage! (x{attacks})");
+            }
+        }
+    }
+
+    public class Mage : Fighter
+    {
+        private int MaxMana = 300;
+        private int Mana;
+        private int originalDamage;
+        public Mage() : base("Mage", 50, 10)
+        {
+            Mana = MaxMana;
+            originalDamage = Damage;
+        }
+
+        public override void Attack(Fighter target)
+        {
+            Mana = Math.Min(Mana + 50, MaxMana);
+            Console.WriteLine($"{Name} regenerated 50 mana. Current mana: {Mana}");
+
+            bool spellUsed = false;
+            if (Mana >= 100)
+            {
+                if (HP < MaxHP)
+                {
+                    HP = MaxHP;
+                    Mana -= 100;
+                    Console.WriteLine($"{Name} cast HEAL! HP fully restored!");
+                    spellUsed = true;
+                }
+                else
+                {
+                    int spellDamage = Damage * 2;
+                    Mana -= 100;
+                    target.TakeDamage(spellDamage);
+                    Console.WriteLine($"{Name} cast DOUBLE DAMAGE! Attacks for {spellDamage}!");
+                    spellUsed = true;
+                }
+            }
+
+            if (!spellUsed)
+            {
+                target.TakeDamage(Damage);
+                Console.WriteLine($"{Name} attacks {target.Name} for {Damage} damage!");
+            }
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+            Mana = MaxMana;
+            Damage = originalDamage;
+        }
+    }
+
+    public class Berserk : Fighter
+    {
+        private bool enraged;
+        public Berserk() : base("Berserk", 80, 30) { }
+
+        public override void Attack(Fighter target)
+        {
+            if (!enraged && HP < MaxHP / 2)
+            {
+                enraged = true;
+                Damage *= 3;
+                Console.WriteLine($"{Name} Безумие! Урон увеличен на {Damage}!");
+            }
+            target.TakeDamage(Damage);
+            Console.WriteLine($"{Name} атаки на {target.Name} нанесли {Damage} урона");
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+            enraged = false;
+            Damage = 30;
+        }
+    }
+
+    public class Regenerator : Fighter
+    {
+        private Random random = new Random();
+        public Regenerator() : base("Голем", 1000, 1) { }
+
+        public override void TakeDamage(int damage)
+        {
+            base.TakeDamage(damage);
+            Min = 0; 
+            Max = 10:
+            if (random.Next(10) == 0)
+            {
+                HP = MaxHP;
+                Console.WriteLine($"{Name} Полная регенерация!");
+            }
+        }
+
+        public override void Attack(Fighter target)
+        {
+            target.TakeDamage(Damage);
+            Console.WriteLine($"{Name} атаки по {target.Name} нанесли {Damage} урона!");
+        }
+    }
+
+    public class Arena
+    {
+        private List<Fighter> fighters = new List<Fighter>
+    {
+        new SimpleFighter(),
+        new DoubleStrikeFighter(),
+        new Mage(),
+        new Berserk(),
+        new Regenerator()
+    }; public void StartBattle()
+        {
+            Console.WriteLine("Choose first fighter:");
+            Fighter fighter1 = SelectFighter();
+            Console.WriteLine("Choose second fighter:");
+            Fighter fighter2 = SelectFighter();
+
+            fighter1.Reset();
+            fighter2.Reset();
+
+            while (fighter1.IsAlive && fighter2.IsAlive)
+            {
+                fighter1.Attack(fighter2);
+                if (!fighter2.IsAlive) break;
+
+                fighter2.Attack(fighter1);
+            }
+
+            Console.WriteLine(fighter1.IsAlive
+                ? $"{fighter1.Name} VICTORY!"
+                : $"{fighter2.Name} VICTORY!");
+        }
+
+        private Fighter SelectFighter()
+        {
+            for (int i = 0; i < fighters.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {fighters[i].Name} (HP: {fighters[i].MaxHP}, DMG: {fighters[i].Damage})");
+            }
+
+            int choice;
+            do Console.Write("Enter 1-5: ");
+            while (!int.TryParse(Console.ReadLine(), out choice)  choice < 1 choice > 5);
+
+            return CreateFighter(fighters[choice - 1]);
+        }
+
+        private Fighter CreateFighter(Fighter original)
+        {
+            switch (original)
+            {
+                case SimpleFighter _: return new SimpleFighter();
+                case DoubleStrikeFighter _: return new DoubleStrikeFighter();
+                case Mage _: return new Mage();
+                case Berserk _: return new Berserk();
+                case Regenerator _: return new Regenerator();
+                default: throw new ArgumentException();
+            }
+        }
+    }
+
+}
